@@ -20,6 +20,16 @@
 //   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 //   allowedHeaders: ["Content-Type", "Authorization"],
 // }));
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: [
+//       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//     ],
+//     methods: ["GET", "POST"],
+//     credentials: true,
+//   },
+// });
 // app.use(express.json({ limit: "10mb" }));
 // app.use(morgan("dev"));
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -45,39 +55,7 @@
 //     message: "🛒🚀 QuickKart AI Backend is Live",
 //     version: "1.0.0",
 //     health: "/api/health",
-//     docs: {
-//       auth: "/api/auth",
-//       users: "/api/users",
-//       products: "/api/products",
-//       categories: "/api/categories",
-//       cart: "/api/cart",
-//       orders: "/api/orders",
-//       payments: "/api/payments",
-//       delivery: "/api/delivery",
-//       reviews: "/api/reviews",
-//       wishlist: "/api/wishlist",
-//       notifications: "/api/notifications",
-
-//       ai: {
-//         chat: "/api/ai/chat",
-//         voiceOrder: "/api/ai/voice-order",
-//         groceryPlanner: "/api/ai/grocery-planner",
-//         mealPlanner: "/api/ai/meal-planner",
-//         autoReorder: "/api/ai/auto-reorder",
-//         smartReplacement: "/api/ai/smart-replacement",
-//         budgetOptimizer: "/api/ai/budget-optimizer",
-//         festivalShopping: "/api/ai/festival-shopping",
-//         personalShopper: "/api/ai/personal-shopper",
-//         ragQA: "/api/ai/rag-qa"
-//       },
-
-//       admin: {
-//         dashboard: "/api/admin/dashboard",
-//         analytics: "/api/admin/analytics",
-//         inventory: "/api/admin/inventory",
-//         users: "/api/admin/users",
-//         orders: "/api/admin/orders"
-//       }
+   
 //     }
 //   });
 // });
@@ -99,6 +77,9 @@
 
 
 
+
+
+
 require("dotenv").config();
 const http = require("http");
 const express = require("express");
@@ -115,26 +96,23 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
-// ==================== CORS FIX ====================
+// ===================== CORS CONFIG =====================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://mern-quickkart-agentic-ai.vercel.app",   // ← Aapka frontend
-  "https://quickkart-ai.vercel.app",               // agar koi aur domain ho
+  "https://mern-quickkart-agentic-om5bw47yc.vercel.app/",
+  "https://mern-quickkart-agentic-om5bw47yc.vercel.app",   // ← Aapka current frontend
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("CORS Not Allowed"));
     }
   },
-  credentials: true,                    // Important for cookies & auth
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 }));
@@ -162,7 +140,6 @@ app.use("/api/delivery", require("./routes/delivery.routes"));
 app.use("/api/ai", require("./routes/ai.routes"));
 app.use('/api/chat', chatRoutes);
 
-// Root Route
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -173,12 +150,15 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
+// Create Server
 const server = http.createServer(app);
-const io = new Server(server, { 
-  cors: { 
+
+// Socket.IO Setup
+const io = new Server(server, {
+  cors: {
     origin: allowedOrigins,
-    credentials: true 
-  } 
+    credentials: true
+  }
 });
 
 initSockets(io);
