@@ -21,15 +21,7 @@
 //   allowedHeaders: ["Content-Type", "Authorization"],
 // }));
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: [
-//       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-//     ],
-//     methods: ["GET", "POST"],
-//     credentials: true,
-//   },
-// });
+
 // app.use(express.json({ limit: "10mb" }));
 // app.use(morgan("dev"));
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -78,8 +70,6 @@
 
 
 
-
-
 require("dotenv").config();
 const http = require("http");
 const express = require("express");
@@ -96,25 +86,12 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
-// ===================== CORS CONFIG =====================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://mern-quickkart-agentic-om5bw47yc.vercel.app/",
-  "https://mern-quickkart-agentic-om5bw47yc.vercel.app",   // ← Aapka current frontend
-];
-
+// ===================== SIMPLE CORS (All Origins) =====================
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS Not Allowed"));
-    }
-  },
-  credentials: true,
+  origin: "*",                    // ← Sab origins allow
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: false              // Important: * ke saath credentials true nahi chalega
 }));
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
@@ -153,11 +130,12 @@ app.use(errorHandler);
 // Create Server
 const server = http.createServer(app);
 
-// Socket.IO Setup
+// Socket.IO with wildcard
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: false
   }
 });
 
