@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quickkart-config
+data:
+  CLIENT_URL: "http://localhost"
+  NODE_ENV: "production"

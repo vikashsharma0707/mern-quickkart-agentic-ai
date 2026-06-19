@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickkart-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: vikashsharma0707/quickkart-server:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: MONGO_URI
+              value: "mongodb+srv://vikashtiwari9893_db_user:RdbK2Lqlus7qpnKq@cluster0.6oj19zn.mongodb.net/?appName=Cluster0"
+            - name: JWT_ACCESS_SECRET
+              value: "jay123"
+            - name: JWT_REFRESH_SECRET
+              value: "5d"

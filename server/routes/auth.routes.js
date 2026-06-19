@@ -1,0 +1,11 @@
+const r = require("express").Router();
+const c = require("../controllers/auth.controller");
+const { protect } = require("../middleware/auth");
+r.post("/register", c.register);
+r.post("/login", c.login);
+r.post("/refresh", c.refresh);
+r.post("/logout", protect, c.logout);
+r.post("/forgot", c.forgot);
+r.post("/reset", c.reset);
+r.get("/me", protect, c.me);
+module.exports = r;

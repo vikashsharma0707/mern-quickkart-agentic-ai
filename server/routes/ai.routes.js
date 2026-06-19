@@ -1,0 +1,15 @@
+const r = require("express").Router();
+const c = require("../controllers/ai.controller");
+const { protect, requireRole } = require("../middleware/auth");
+r.use(protect);
+r.post("/assistant", c.assistant);
+r.post("/agents/:agentKey", c.runAgent);
+r.post("/replacement", c.replacement);
+r.post("/reorder", c.reorderNow);
+r.post("/rag", c.ragQuery);
+r.post("/rag/rebuild", requireRole("admin", "superadmin"), c.rebuildRag);
+r.post("/admin/inventory-prediction", requireRole("admin", "superadmin"), c.inventoryPrediction);
+r.get("/auto-rules", c.listAutoRules);
+r.post("/auto-rules", c.createAutoRule);
+r.delete("/auto-rules/:id", c.deleteAutoRule);
+module.exports = r;

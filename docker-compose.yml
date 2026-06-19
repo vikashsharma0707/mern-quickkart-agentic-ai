@@ -1,0 +1,47 @@
+# version: "3.9"
+# services:
+#   mongo:
+#     image: mongo:7
+#     ports: ["27017:27017"]
+#     volumes: ["mongo_data:/data/db"]
+#   server:
+#     build: ./server
+#     env_file: ./server/.env
+#     environment:
+#       - MONGO_URI=mongodb://mongo:27017/quickkart
+#       - CLIENT_URL=http://localhost
+#     depends_on: [mongo]
+#     ports: ["5000:5000"]
+#     volumes: ["./server/uploads:/app/uploads"]
+#   client:
+#     build: ./client
+#     depends_on: [server]
+#     ports: ["80:80"]
+# volumes:
+#   mongo_data:
+
+
+
+version: "3.9"
+
+services:
+  server:
+    build: ./server
+    container_name: quickkart-server
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - CLIENT_URL=http://localhost
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    container_name: quickkart-client
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    restart: unless-stopped

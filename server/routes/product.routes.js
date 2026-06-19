@@ -1,0 +1,11 @@
+const r = require("express").Router();
+const c = require("../controllers/product.controller");
+const { protect, requireRole } = require("../middleware/auth");
+const upload = require("../middleware/upload");
+r.get("/", c.list);
+r.get("/:id", c.get);
+r.post("/", protect, requireRole("admin", "vendor", "superadmin"), upload.array("images", 5), c.create);
+r.put("/:id", protect, requireRole("admin", "vendor", "superadmin"), upload.array("images", 5), c.update);
+r.delete("/:id", protect, requireRole("admin", "superadmin"), c.remove);
+r.post("/bulk", protect, requireRole("admin", "superadmin"), c.bulkUpload);
+module.exports = r;

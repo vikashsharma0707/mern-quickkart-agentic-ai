@@ -1,0 +1,10 @@
+const r = require("express").Router();
+const c = require("../controllers/order.controller");
+const { protect, requireRole } = require("../middleware/auth");
+r.use(protect);
+r.get("/", c.list);
+r.get("/:id", c.get);
+r.post("/", c.place);
+r.put("/:id/status", requireRole("admin", "delivery", "superadmin"), c.updateStatus);
+r.post("/:id/cancel", c.cancel);
+module.exports = r;
