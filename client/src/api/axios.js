@@ -1,15 +1,145 @@
 
 
 
+// import axios from "axios";
+
+// const BASE_URL = import.meta.env.VITE_API_URL
+//   ? `${import.meta.env.VITE_API_URL}/api`
+//   : "/api";
+
+// const api = axios.create({
+//   baseURL: BASE_URL,
+//   withCredentials: true,  // ✅ Include credentials with all requests
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
+// // ===================== REQUEST INTERCEPTOR =====================
+// api.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem("accessToken");
+
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+
+//     return config;
+//   },
+//   (error) => {
+//     console.error("Request Error:", error);
+//     return Promise.reject(error);
+//   }
+// );
+
+// // ===================== RESPONSE INTERCEPTOR =====================
+// api.interceptors.response.use(
+//   (response) => response,
+
+//   async (error) => {
+//     const originalRequest = error.config;
+
+//     // Avoid infinite loop on retry
+//     if (!originalRequest) {
+//       return Promise.reject(error);
+//     }
+
+//     // ✅ Handle 401 Unauthorized - Try refresh token
+//     if (
+//       error.response?.status === 401 &&
+//       !originalRequest._retry &&
+//       localStorage.getItem("refreshToken")
+//     ) {
+//       originalRequest._retry = true;
+
+//       try {
+//         // ✅ Create separate axios instance for refresh (with credentials)
+//         const refreshResponse = await axios.post(
+//           `${BASE_URL}/auth/refresh`,
+//           {
+//             refreshToken: localStorage.getItem("refreshToken"),
+//           },
+//           {
+//             withCredentials: true,  // ← Important: include credentials
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//           }
+//         );
+
+//         const { accessToken, refreshToken } = refreshResponse.data.data;
+
+//         // Update tokens
+//         localStorage.setItem("accessToken", accessToken);
+//         localStorage.setItem("refreshToken", refreshToken);
+
+//         // Update original request with new token
+//         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+//         // Retry original request with new token
+//         return api(originalRequest);
+//       } catch (refreshError) {
+//         // Refresh failed - clear tokens and redirect to login
+//         console.error("Token Refresh Failed:", refreshError);
+//         localStorage.removeItem("accessToken");
+//         localStorage.removeItem("refreshToken");
+
+//         // Redirect to login
+//         if (typeof window !== "undefined") {
+//           window.location.href = "/login";
+//         }
+
+//         return Promise.reject(refreshError);
+//       }
+//     }
+
+//     // ✅ Handle CORS errors
+//     if (error.message === "Network Error" && !error.response) {
+//       console.error("CORS or Network Error:", {
+//         message: error.message,
+//         config: error.config,
+//       });
+//       // Could show user-friendly toast here
+//     }
+
+//     // ✅ Handle other 4xx/5xx errors
+//     if (error.response) {
+//       console.error(`API Error [${error.response.status}]:`, {
+//         status: error.response.status,
+//         data: error.response.data,
+//         url: error.config?.url,
+//       });
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
+
+// export default api;
+
+
+
+
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
+// ===================== BASE URLs =====================
+const API_URL = import.meta.env.VITE_API_URL;
+
+export const BASE_URL = API_URL 
+  ? `${API_URL}/api`
   : "/api";
 
+export const UPLOADS_URL = API_URL 
+  ? `${API_URL}/uploads`
+  : "/uploads";
+
+console.log("🌍 API_URL:", BASE_URL);
+console.log("📁 UPLOADS_URL:", UPLOADS_URL);
+
+// ===================== AXIOS INSTANCE =====================
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,  // ✅ Include credentials with all requests
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -19,11 +149,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => {
@@ -39,12 +167,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Avoid infinite loop on retry
     if (!originalRequest) {
       return Promise.reject(error);
     }
 
-    // ✅ Handle 401 Unauthorized - Try refresh token
+    // Handle 401 Unauthorized
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -53,14 +180,13 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // ✅ Create separate axios instance for refresh (with credentials)
         const refreshResponse = await axios.post(
           `${BASE_URL}/auth/refresh`,
           {
             refreshToken: localStorage.getItem("refreshToken"),
           },
           {
-            withCredentials: true,  // ← Important: include credentials
+            withCredentials: true,
             headers: {
               "Content-Type": "application/json",
             },
@@ -69,22 +195,17 @@ api.interceptors.response.use(
 
         const { accessToken, refreshToken } = refreshResponse.data.data;
 
-        // Update tokens
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
 
-        // Update original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-        // Retry original request with new token
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
         console.error("Token Refresh Failed:", refreshError);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
 
-        // Redirect to login
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
@@ -93,16 +214,15 @@ api.interceptors.response.use(
       }
     }
 
-    // ✅ Handle CORS errors
+    // Handle CORS errors
     if (error.message === "Network Error" && !error.response) {
       console.error("CORS or Network Error:", {
         message: error.message,
         config: error.config,
       });
-      // Could show user-friendly toast here
     }
 
-    // ✅ Handle other 4xx/5xx errors
+    // Handle other errors
     if (error.response) {
       console.error(`API Error [${error.response.status}]:`, {
         status: error.response.status,
@@ -114,5 +234,11 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ===================== HELPER: GET IMAGE URL =====================
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  return `${UPLOADS_URL}/${imagePath}`;
+};
 
 export default api;
