@@ -180,53 +180,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Zepto Style Carousel */}
-      <div className="mb-10">
-        <Swiper
-          modules={[Autoplay, Pagination]}
-          autoplay={{
-            delay: 3500,
-            disableOnInteraction: false,
-          }}
-          pagination={{
-            clickable: true,
-          }}
-          loop={true}
-          className="rounded-3xl overflow-hidden shadow-2xl"
-        >
-          {banners.map((banner) => (
-            <SwiperSlide key={banner.id}>
-              <div className="relative h-[220px] md:h-[350px]">
-
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="w-full h-full object-cover"
-                />
-
-                <div className="absolute inset-0 bg-black/40" />
-
-                <div className="absolute inset-0 flex items-center">
-                  <div className="px-8 md:px-16 text-white max-w-2xl">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-3">
-                      {banner.title}
-                    </h2>
-
-                    <p className="text-lg md:text-xl mb-5 text-white/90">
-                      {banner.subtitle}
-                    </p>
-
-                    <button className="bg-white text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
-                      {banner.button}
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
+      
 
       {/* Products */}
       <div className="flex items-center justify-between mb-4">
