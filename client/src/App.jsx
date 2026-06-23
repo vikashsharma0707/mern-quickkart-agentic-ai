@@ -258,6 +258,9 @@ import DeliveryDashboard from "./pages/delivery/DeliveryDashboard";
 import AIAssistant from "./components/ai/AIAssistant";
 
 import { fetchCart } from "./features/cart/cartSlice";
+import ProductDetail from "./pages/customer/ProductDetail";
+import Products from "./pages/customer/Products";
+import Footer from "./components/common/Footer";
 
 export default function App() {
   const user = useSelector((s) => s.auth.user);
@@ -294,6 +297,8 @@ export default function App() {
         <Route path="/track/:id" element={<Protected><Track /></Protected>} />
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
         <Route path="/wishlist" element={<Protected><Wishlist /></Protected>} />
+        <Route path="/product/:id" element={<Protected><ProductDetail/></Protected>} />
+        <Route path="/products" element={<Protected><Products/></Protected>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<Protected roles={["admin", "superadmin"]}><AdminDashboard /></Protected>} />
@@ -307,6 +312,7 @@ export default function App() {
         {/* 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer/>
 
       {/* Floating Chat Button - Sirf Customer ke liye */}
       {user && (user.role === "customer" || user.role === "user") && <FloatingChat />}
