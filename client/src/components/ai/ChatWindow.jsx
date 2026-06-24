@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import EmptyState from "./EmptyState";
-import ExecutionTimeline from "./ExecutionTimeline";
+import ExecutionTimeline from "./Executiontimeline";
 
 export default function ChatWindow({ history, loading, isCrew, onPickPrompt, onRegenerate }) {
   const endRef = useRef();
