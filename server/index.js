@@ -228,15 +228,37 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
-// ===================== CORS: ALLOW ALL ORIGINS =====================
+// ===================== CORS WITH SPECIFIC ORIGINS =====================
+const allowedOrigins = [,
+ "https://mern-quickkart-agentic-c6gx6ncvq.vercel.app",  // ← Vercel frontend
+  "https://mern-quickkart-agentic-mbgbbsl1p.vercel.app",  // ← If you have other Vercel deployment
+  "http://localhost:5173",  // Dev
+  "http://localhost:3000"   // Dev
+];
+
+console.log("🌍 CORS Origins:", allowedOrigins);
+
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       console.warn(`❌ CORS blocked origin: ${origin}`);
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+//   credentials: true  // ✅ This is OK with specific origins
+// }));
+
 app.use(cors({
-  origin: "*", // ✅ ALLOW ALL (temporary for debugging)
+  origin: "*",  // ✅ Wildcard OK without credentials
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  credentials: false // ← Must be false when origin is "*"
+  credentials: false  // ← MUST BE FALSE
 }));
 
-console.log("✅ CORS: Allowing all origins");
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json({ limit: "10mb" }));
@@ -279,14 +301,16 @@ app.use(errorHandler);
 // Create Server
 const server = http.createServer(app);
 
-// Socket.IO with CORS for all origins
+// Socket.IO with specific origins
 const io = new Server(server, {
   cors: {
-    origin: "*", // ✅ ALLOW ALL
+    origin: allowedOrigins,  // ✅ Use same origins list
     methods: ["GET", "POST"],
-    credentials: false
+    credentials: true
   }
 });
+
+
 
 initSockets(io);
 app.set("io", io);
@@ -297,6 +321,7 @@ connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(`🚀 QuickKart API running on port :${PORT}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`✅ CORS enabled for ${allowedOrigins.length} origins`);
   });
 }).catch(err => {
   console.error("❌ Database connection failed:", err);
