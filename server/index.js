@@ -229,12 +229,21 @@ const chatRoutes = require('./routes/chatRoutes');
 const app = express();
 
 // ===================== CORS WITH SPECIFIC ORIGINS =====================
-const allowedOrigins = [,
- "https://mern-quickkart-agentic-c6gx6ncvq.vercel.app",  // ← Vercel frontend
-  "https://mern-quickkart-agentic-mbgbbsl1p.vercel.app",  // ← If you have other Vercel deployment
-  "http://localhost:5173",  // Dev
-  "http://localhost:3000"   // Dev
-];
+// const allowedOrigins = [,
+//  "https://mern-quickkart-agentic-c6gx6ncvq.vercel.app",  // ← Vercel frontend
+//   "https://mern-quickkart-agentic-mbgbbsl1p.vercel.app",  // ← If you have other Vercel deployment
+//   "http://localhost:5173",  // Dev
+//   "http://localhost:3000"   // Dev
+// ];
+
+
+
+const allowedOrigins = [
+  'http://localhost:5173',     // Vite default
+  'http://localhost:3000',     // agar React CRA ho
+  process.env.FRONTEND_URL,    // production
+  process.env.FRONTEND_WWW_URL
+].filter(Boolean);
 
 console.log("🌍 CORS Origins:", allowedOrigins);
 
@@ -252,11 +261,39 @@ console.log("🌍 CORS Origins:", allowedOrigins);
 //   credentials: true  // ✅ This is OK with specific origins
 // }));
 
+// app.use(cors({
+//   origin: "*",  // ✅ Wildcard OK without credentials
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+//   credentials: false  // ← MUST BE FALSE
+// }));
+
+
+// server.js ya app.js ke top mein
+
+
+
+
 app.use(cors({
-  origin: "*",  // ✅ Wildcard OK without credentials
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  credentials: false  // ← MUST BE FALSE
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, mobile, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`❌ Blocked origin: ${origin}`); // debugging ke liye
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,                    // ← Ye zaroori hai
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept'
+  ]
 }));
 
 
