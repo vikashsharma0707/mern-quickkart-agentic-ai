@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check, RotateCcw, ThumbsUp, ThumbsDown, Bot } from "lucide-react";
-import { ResponseCards } from "./ResponseCards";
+import { ResponseCards } from "./Responsecards";
 
 export default function MessageBubble({ message, onRegenerate }) {
   const [copied, setCopied] = useState(false);
